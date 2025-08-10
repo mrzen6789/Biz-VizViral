@@ -4,103 +4,52 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Phân Tích Video Viral</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #0f172a;
-      color: white;
-      display: flex;
-      justify-content: center;
-      padding: 20px;
-    }
-    .container {
-      max-width: 400px;
-      width: 100%;
-      background: #1e293b;
-      padding: 20px;
-      border-radius: 12px;
-    }
-    h1 {
-      color: #ec4899;
-      text-align: center;
-    }
-    input {
-      width: 100%;
-      padding: 10px;
-      margin-top: 10px;
-      border-radius: 6px;
-      border: none;
-    }
-    button {
-      margin-top: 10px;
-      width: 100%;
-      padding: 10px;
-      background: linear-gradient(to right, #8b5cf6, #ec4899);
-      border: none;
-      border-radius: 6px;
-      color: white;
-      font-weight: bold;
-      cursor: pointer;
-    }
-    .error {
-      color: red;
-      font-size: 14px;
-    }
-    .result {
-      margin-top: 20px;
-      background: #334155;
-      padding: 10px;
-      border-radius: 6px;
-    }
-  </style>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-  <div class="container">
-    <h1>✨ Phân Tích Video Viral</h1>
-    <p>Phân tích video TikTok, Facebook, YouTube qua 2 bước đơn giản.</p>
-    
-    <div class="form-box">
-      <h2>1️⃣ Tải Video</h2>
-      <input type="text" id="videoUrl" placeholder="Nhập URL Video">
-      <button onclick="getVideoInfo()">📥 Lấy Thông Tin</button>
-      <p id="error" class="error"></p>
-    </div>
-    
-    <div id="result" class="result"></div>
+<body class="bg-gray-900 text-white flex justify-center items-center min-h-screen">
+  <div class="bg-gray-800 p-6 rounded-lg shadow-lg w-96">
+    <h1 class="text-2xl font-bold text-pink-400 mb-4">✨ Phân Tích Video Viral</h1>
+    <p class="text-gray-400 mb-4">Phân tích video TikTok, Facebook, YouTube qua 2 bước đơn giản.</p>
+
+    <label class="block mb-2">1️⃣ URL Video</label>
+    <input id="videoUrl" type="text" placeholder="https://..." class="w-full p-2 rounded text-black mb-4">
+
+    <button onclick="getVideoInfo()" class="w-full bg-gradient-to-r from-purple-500 to-pink-500 p-2 rounded">📥 Lấy Thông Tin</button>
+
+    <p id="errorMsg" class="text-red-400 mt-3"></p>
+    <pre id="result" class="mt-4 bg-gray-700 p-3 rounded"></pre>
   </div>
 
   <script>
+    const BACKEND_URL = "https://script.google.com/macros/s/AKfycbySW9KgZvXTDIyMR4Uf3_G3ovULA3Ph-QPq1QqSpppVoQTv642sb1uIYX0yReSkNs-lzQ/exec"; // Dán URL Apps Script vào đây
+
     async function getVideoInfo() {
       const url = document.getElementById("videoUrl").value.trim();
-      const errorBox = document.getElementById("error");
-      const resultBox = document.getElementById("result");
-
-      errorBox.textContent = "";
-      resultBox.innerHTML = "";
+      const errorMsg = document.getElementById("errorMsg");
+      const result = document.getElementById("result");
+      errorMsg.textContent = "";
+      result.textContent = "";
 
       if (!url) {
-        errorBox.textContent = "Vui lòng nhập URL video!";
+        errorMsg.textContent = "Vui lòng nhập URL video.";
         return;
       }
 
       try {
-        // Sử dụng CORS Proxy để tránh lỗi CORS
-        const API_URL = "https://corsproxy.io/?" + encodeURIComponent(
-          "https://script.google.com/macros/s/AKfycbySW9KgZvXTDIyMR4Uf3_G3ovULA3Ph-QPq1QqSpppVoQTv642sb1uIYX0yReSkNs-lzQ/exec" + encodeURIComponent(url)
-        );
-
-        const res = await fetch(API_URL);
-        if (!res.ok) throw new Error("Không lấy được dữ liệu!");
+        const res = await fetch(BACKEND_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ url })
+        });
 
         const data = await res.json();
-
-        resultBox.innerHTML = `
-          <p><strong>Tiêu đề:</strong> ${data.title || "Không có"}</p>
-          <p><strong>Tác giả:</strong> ${data.author || "Không có"}</p>
-          <p><strong>Lượt xem:</strong> ${data.views || "Không có"}</p>
-        `;
+        if (data.status === "ok") {
+          result.textContent = JSON.stringify(data.result, null, 2);
+        } else {
+          errorMsg.textContent = "Lỗi: " + data.message;
+        }
       } catch (err) {
-        errorBox.textContent = "Lỗi: " + err.message;
+        errorMsg.textContent = "Không lấy được dữ liệu: " + err;
       }
     }
   </script>
