@@ -1,372 +1,108 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trình Phân Tích Video Viral</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #111827;
-            color: #e5e7eb;
-        }
-        .glassmorphism {
-            background: rgba(31, 41, 55, 0.5);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        .main-button {
-            background: linear-gradient(90deg, #8B5CF6, #EC4899);
-            transition: all 0.3s ease;
-        }
-        .main-button:hover:not(:disabled) {
-            box-shadow: 0 0 20px rgba(139, 92, 246, 0.5);
-            transform: translateY(-2px);
-        }
-        .main-button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-        .analysis-option {
-            border: 2px solid #4B5563;
-            transition: all 0.2s ease-in-out;
-        }
-        .analysis-option.selected {
-            border-color: #8B5CF6;
-            background-color: rgba(139, 92, 246, 0.1);
-            box-shadow: 0 0 15px rgba(139, 92, 246, 0.3);
-        }
-        .custom-input {
-            background-color: rgba(55, 65, 81, 0.5);
-            border: 1px solid #4B5563;
-            transition: all 0.3s ease;
-        }
-        .custom-input:focus {
-            background-color: rgba(55, 65, 81, 0.8);
-            border-color: #8B5CF6;
-            box-shadow: 0 0 10px rgba(139, 92, 246, 0.3);
-            outline: none;
-        }
-        .loader {
-            border: 4px solid #4b5563;
-            border-top: 4px solid #8B5CF6;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        .result-card {
-            background-color: #1F2937;
-            border: 1px solid #374151;
-        }
-        .error-box {
-            background-color: rgba(239, 68, 68, 0.1);
-            border: 1px solid #EF4444;
-            color: #F87171;
-        }
-        .prose-invert h3 { color: #d1d5db; }
-        .prose-invert h4 { color: #9ca3af; }
-        .prose-invert ul { list-style-type: disc; padding-left: 1.5rem; }
-        .prose-invert li::marker { color: #8B5CF6; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Phân Tích Video Viral</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #0f172a;
+      color: white;
+      display: flex;
+      justify-content: center;
+      padding: 20px;
+    }
+    .container {
+      max-width: 400px;
+      width: 100%;
+      background: #1e293b;
+      padding: 20px;
+      border-radius: 12px;
+    }
+    h1 {
+      color: #ec4899;
+      text-align: center;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      border-radius: 6px;
+      border: none;
+    }
+    button {
+      margin-top: 10px;
+      width: 100%;
+      padding: 10px;
+      background: linear-gradient(to right, #8b5cf6, #ec4899);
+      border: none;
+      border-radius: 6px;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .error {
+      color: red;
+      font-size: 14px;
+    }
+    .result {
+      margin-top: 20px;
+      background: #334155;
+      padding: 10px;
+      border-radius: 6px;
+    }
+  </style>
 </head>
-<body class="flex items-center justify-center min-h-screen p-4">
-
-    <div class="w-full max-w-3xl mx-auto">
-        <div class="text-center mb-8">
-            <h1 class="text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">
-                <i class="fa-solid fa-wand-magic-sparkles mr-2"></i>Phân Tích Video Viral
-            </h1>
-            <p class="text-gray-400 mt-2 text-lg">Phân tích video TikTok, Facebook, YouTube qua 2 bước đơn giản.</p>
-        </div>
-
-        <div id="step1-download" class="glassmorphism rounded-2xl p-6 md:p-8 shadow-lg">
-            <h2 class="text-2xl font-semibold mb-6 flex items-center">
-                <span class="bg-purple-500 text-white rounded-full h-8 w-8 flex items-center justify-center mr-3">1</span>
-                Tải Video
-            </h2>
-            <p class="text-gray-400 mb-6">Dán URL video để lấy thông tin và xem trước.</p>
-            <div id="step1-error-message" class="error-box p-4 rounded-lg mb-6 hidden"></div>
-            <div class="mb-6">
-                <label for="video-url" class="block mb-3 font-medium text-gray-300">URL Video</label>
-                <div class="relative">
-                    <input type="text" id="video-url" class="custom-input w-full p-4 pl-12 rounded-lg text-white" placeholder="https://www.tiktok.com/@user/video/123...">
-                    <i class="fa-solid fa-link absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                </div>
-            </div>
-            <div class="mt-8 text-center">
-                <button id="download-button" class="main-button w-full md:w-auto font-bold text-white py-3 px-12 rounded-full text-lg">
-                    <span id="download-button-text"><i class="fa-solid fa-download mr-2"></i> Lấy Thông Tin</span>
-                    <span id="download-button-loader" class="hidden"><div class="loader mx-auto w-6 h-6 border-2"></div></span>
-                </button>
-            </div>
-        </div>
-
-        <div id="step2-analyze" class="glassmorphism rounded-2xl p-6 md:p-8 shadow-lg mt-8 hidden">
-            <h2 class="text-2xl font-semibold mb-6 flex items-center">
-                <span class="bg-pink-500 text-white rounded-full h-8 w-8 flex items-center justify-center mr-3">2</span>
-                Kiểm Tra & Phân Tích Video
-            </h2>
-            <p class="text-gray-400 mb-6">Xem video để đảm bảo đúng nội dung, sau đó chọn mục tiêu và phân tích.</p>
-            
-            <div class="bg-black rounded-lg overflow-hidden aspect-video mb-4">
-                 <img id="video-thumbnail" src="https://placehold.co/1280x720/111827/FFFFFF?text=Video+Preview" alt="Video Preview" class="w-full h-full object-cover">
-            </div>
-            <p id="video-caption" class="text-center mb-6 text-gray-300 italic">Đây là caption mô phỏng của video...</p>
-            
-            <div id="step2-error-message" class="error-box p-4 rounded-lg mb-6 hidden"></div>
-
-            <div class="mb-6">
-                <label class="block mb-3 font-medium text-gray-300">Chọn mục tiêu phân tích:</label>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <button id="type-entertainment" class="analysis-option selected text-left p-4 rounded-lg">
-                        <div class="flex items-center">
-                            <i class="fa-solid fa-film fa-lg mr-4 text-purple-400"></i>
-                            <div>
-                                <h3 class="font-semibold text-white">Viral Giải Trí</h3>
-                                <p class="text-sm text-gray-400">Tạo kịch bản hài hước, hấp dẫn.</p>
-                            </div>
-                        </div>
-                    </button>
-                    <button id="type-sales" class="analysis-option text-left p-4 rounded-lg">
-                        <div class="flex items-center">
-                            <i class="fa-solid fa-store fa-lg mr-4 text-pink-400"></i>
-                            <div>
-                                <h3 class="font-semibold text-white">Viral Bán Hàng</h3>
-                                <p class="text-sm text-gray-400">Tạo kịch bản chuyển đổi cao.</p>
-                            </div>
-                        </div>
-                    </button>
-                </div>
-            </div>
-            
-            <div class="mt-8 text-center">
-                <button id="analyze-button" class="main-button w-full md:w-auto font-bold text-white py-3 px-12 rounded-full text-lg">
-                    <span id="analyze-button-text"><i class="fa-solid fa-magnifying-glass-chart mr-2"></i> Phân Tích Video</span>
-                    <span id="analyze-button-loader" class="hidden"><div class="loader mx-auto w-6 h-6 border-2"></div></span>
-                </button>
-            </div>
-        </div>
-
-        <div id="result-section" class="mt-8 hidden">
-             <h2 class="text-2xl font-semibold mb-6 flex items-center">
-                <span class="bg-green-500 text-white rounded-full h-8 w-8 flex items-center justify-center mr-3"><i class="fa-solid fa-check"></i></span>
-                Kết Quả Phân Tích
-            </h2>
-            
-            <div id="loading-state" class="text-center p-8 glassmorphism rounded-2xl">
-                <div class="loader mx-auto"></div>
-                <p class="mt-4 text-lg font-medium text-gray-300">AI đang phân tích, vui lòng chờ trong giây lát...</p>
-                <p class="text-gray-400">Quá trình này có thể mất từ 15-30 giây.</p>
-            </div>
-
-            <div id="result-content" class="hidden space-y-6">
-                <div class="result-card rounded-2xl p-6">
-                    <h3 class="text-xl font-semibold mb-4 text-purple-400 flex items-center"><i class="fa-solid fa-circle-info mr-3"></i>Thông tin video gốc</h3>
-                    <div id="original-video-info" class="text-gray-300 space-y-2"></div>
-                </div>
-                <div class="result-card rounded-2xl p-6">
-                    <h3 class="text-xl font-semibold mb-4 text-pink-400 flex items-center"><i class="fa-solid fa-scroll mr-3"></i>Phân Tích & Kịch Bản Đề Xuất</h3>
-                    <div id="generated-script" class="prose prose-invert max-w-none text-gray-300"></div>
-                </div>
-                <div class="mt-8 text-center">
-                    <button id="analyze-another-button" class="main-button w-full md:w-auto font-bold text-white py-3 px-12 rounded-full text-lg">
-                        <i class="fa-solid fa-rotate-right mr-2"></i> Phân Tích Video Khác
-                    </button>
-                </div>
-            </div>
-        </div>
+<body>
+  <div class="container">
+    <h1>✨ Phân Tích Video Viral</h1>
+    <p>Phân tích video TikTok, Facebook, YouTube qua 2 bước đơn giản.</p>
+    
+    <div class="form-box">
+      <h2>1️⃣ Tải Video</h2>
+      <input type="text" id="videoUrl" placeholder="Nhập URL Video">
+      <button onclick="getVideoInfo()">📥 Lấy Thông Tin</button>
+      <p id="error" class="error"></p>
     </div>
+    
+    <div id="result" class="result"></div>
+  </div>
 
-    <script>
-        // !!! QUAN TRỌNG: THAY THẾ BẰNG URL WEB APP CỦA BẠN !!!
-        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbySW9KgZvXTDIyMR4Uf3_G3ovULA3Ph-QPq1QqSpppVoQTv642sb1uIYX0yReSkNs-lzQ/exec';
+  <script>
+    async function getVideoInfo() {
+      const url = document.getElementById("videoUrl").value.trim();
+      const errorBox = document.getElementById("error");
+      const resultBox = document.getElementById("result");
 
-        // Lấy các phần tử DOM
-        const step1Div = document.getElementById('step1-download');
-        const step2Div = document.getElementById('step2-analyze');
-        const resultSection = document.getElementById('result-section');
+      errorBox.textContent = "";
+      resultBox.innerHTML = "";
 
-        const downloadButton = document.getElementById('download-button');
-        const downloadButtonText = document.getElementById('download-button-text');
-        const downloadButtonLoader = document.getElementById('download-button-loader');
-        
-        const analyzeButton = document.getElementById('analyze-button');
-        const analyzeButtonText = document.getElementById('analyze-button-text');
-        const analyzeButtonLoader = document.getElementById('analyze-button-loader');
+      if (!url) {
+        errorBox.textContent = "Vui lòng nhập URL video!";
+        return;
+      }
 
-        const videoUrlInput = document.getElementById('video-url');
-        const videoThumbnail = document.getElementById('video-thumbnail');
-        const videoCaption = document.getElementById('video-caption');
+      try {
+        // Sử dụng CORS Proxy để tránh lỗi CORS
+        const API_URL = "https://corsproxy.io/?" + encodeURIComponent(
+          "https://script.google.com/macros/s/AKfycbySW9KgZvXTDIyMR4Uf3_G3ovULA3Ph-QPq1QqSpppVoQTv642sb1uIYX0yReSkNs-lzQ/exec" + encodeURIComponent(url)
+        );
 
-        const typeEntertainmentBtn = document.getElementById('type-entertainment');
-        const typeSalesBtn = document.getElementById('type-sales');
-        
-        const loadingState = document.getElementById('loading-state');
-        const resultContent = document.getElementById('result-content');
-        const analyzeAnotherButton = document.getElementById('analyze-another-button');
+        const res = await fetch(API_URL);
+        if (!res.ok) throw new Error("Không lấy được dữ liệu!");
 
-        const originalVideoInfo = document.getElementById('original-video-info');
-        const generatedScript = document.getElementById('generated-script');
-        const step1ErrorMessageDiv = document.getElementById('step1-error-message');
-        const step2ErrorMessageDiv = document.getElementById('step2-error-message');
+        const data = await res.json();
 
-        // Biến trạng thái
-        let selectedType = 'entertainment';
-        let videoTranscript = '';
-
-        function showError(step, message) {
-            const errorDiv = step === 1 ? step1ErrorMessageDiv : step2ErrorMessageDiv;
-            errorDiv.textContent = `Lỗi: ${message}`;
-            errorDiv.classList.remove('hidden');
-        }
-
-        function hideError(step) {
-            const errorDiv = step === 1 ? step1ErrorMessageDiv : step2ErrorMessageDiv;
-            errorDiv.classList.add('hidden');
-        }
-        
-        function toggleButtonLoader(button, textEl, loaderEl, showLoader) {
-            button.disabled = showLoader;
-            textEl.classList.toggle('hidden', showLoader);
-            loaderEl.classList.toggle('hidden', !showLoader);
-        }
-
-        // Sự kiện cho nút "Lấy Thông Tin"
-        downloadButton.addEventListener('click', async () => {
-            if (!videoUrlInput.value.trim()) {
-                showError(1, 'Vui lòng dán link video!');
-                return;
-            }
-             if (GOOGLE_SCRIPT_URL === 'URL_WEB_APP_CUA_BAN_O_DAY') {
-                showError(1, 'Vui lòng cấu hình URL của Google Apps Script trong file HTML.');
-                return;
-            }
-            hideError(1);
-            toggleButtonLoader(downloadButton, downloadButtonText, downloadButtonLoader, true);
-            
-            try {
-                const response = await fetch(GOOGLE_SCRIPT_URL, {
-                    method: 'POST',
-                    body: JSON.stringify({
-                        action: 'fetch-video-info',
-                        video_url: videoUrlInput.value 
-                    }),
-                    headers: { "Content-Type": "text/plain;charset=utf-8" }
-                });
-
-                const data = await response.json();
-
-                if (!response.ok || data.message) {
-                    throw new Error(data.message || 'Không thể lấy thông tin từ link này.');
-                }
-                
-                videoTranscript = data.transcript;
-                videoThumbnail.src = data.thumbnail_url;
-                videoCaption.textContent = data.caption;
-
-                step1Div.classList.add('hidden');
-                step2Div.classList.remove('hidden');
-
-            } catch (error) {
-                showError(1, error.message);
-            } finally {
-                toggleButtonLoader(downloadButton, downloadButtonText, downloadButtonLoader, false);
-            }
-        });
-
-        typeEntertainmentBtn.addEventListener('click', () => {
-            selectedType = 'entertainment';
-            typeEntertainmentBtn.classList.add('selected');
-            typeSalesBtn.classList.remove('selected');
-        });
-
-        typeSalesBtn.addEventListener('click', () => {
-            selectedType = 'sales';
-            typeSalesBtn.classList.add('selected');
-            typeEntertainmentBtn.classList.remove('selected');
-        });
-
-        // Sự kiện cho nút "Phân Tích Video"
-        analyzeButton.addEventListener('click', async () => {
-            hideError(2);
-            step2Div.classList.add('hidden');
-            resultSection.classList.remove('hidden');
-            loadingState.classList.remove('hidden');
-            resultContent.classList.add('hidden');
-            toggleButtonLoader(analyzeButton, analyzeButtonText, analyzeButtonLoader, true);
-            
-            try {
-                const response = await fetch(GOOGLE_SCRIPT_URL, {
-                    method: 'POST',
-                    body: JSON.stringify({
-                        action: 'analyze-video',
-                        video_url: videoUrlInput.value,
-                        analysis_type: selectedType,
-                        video_transcript: videoTranscript
-                    }),
-                    headers: { "Content-Type": "text/plain;charset=utf-8" }
-                });
-
-                const data = await response.json();
-
-                if (!response.ok || data.message) {
-                    throw new Error(data.message || `Lỗi từ server: ${response.status} ${response.statusText}`);
-                }
-                
-                displayResults(data);
-                resultContent.classList.remove('hidden');
-
-            } catch (error) {
-                step2Div.classList.add('hidden');
-                resultSection.classList.add('hidden');
-                // Hiển thị lại bước 1 để người dùng thử lại
-                step1Div.classList.remove('hidden');
-                showError(1, 'Có lỗi nghiêm trọng trong quá trình phân tích. Vui lòng thử lại. ' + error.message);
-
-            } finally {
-                loadingState.classList.add('hidden');
-                toggleButtonLoader(analyzeButton, analyzeButtonText, analyzeButtonLoader, false);
-            }
-        });
-        
-        analyzeAnotherButton.addEventListener('click', () => {
-            resultSection.classList.add('hidden');
-            step2Div.classList.add('hidden');
-            step1Div.classList.remove('hidden');
-            videoUrlInput.value = '';
-            videoThumbnail.src = 'https://placehold.co/1280x720/111827/FFFFFF?text=Video+Preview';
-            videoCaption.textContent = 'Đây là caption mô phỏng của video...';
-            hideError(1);
-            hideError(2);
-        });
-
-        function displayResults(data) {
-            if (!data.originalUrl || !data.script) {
-                throw new Error('Dữ liệu trả về từ server không hợp lệ.');
-            }
-            originalVideoInfo.innerHTML = `
-                <p><strong><i class="fa-solid fa-link w-5"></i> Link:</strong> <a href="${data.originalUrl}" target="_blank" class="text-purple-400 hover:underline">${data.originalUrl}</a></p>
-                <p><strong><i class="fa-solid fa-file-lines w-5"></i> Tiêu đề:</strong> ${data.title}</p>
-                <p><strong><i class="fa-solid fa-fire w-5"></i> Điểm viral (dự đoán):</strong> ${data.viralScore}/100</p>
-            `;
-            generatedScript.innerHTML = data.script;
-        }
-
-    </script>
+        resultBox.innerHTML = `
+          <p><strong>Tiêu đề:</strong> ${data.title || "Không có"}</p>
+          <p><strong>Tác giả:</strong> ${data.author || "Không có"}</p>
+          <p><strong>Lượt xem:</strong> ${data.views || "Không có"}</p>
+        `;
+      } catch (err) {
+        errorBox.textContent = "Lỗi: " + err.message;
+      }
+    }
+  </script>
 </body>
-
 </html>
-
-
-
